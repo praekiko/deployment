@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: react-ssr-prod
+  labels:
+    name: react-ssr-prod
+spec:
+  replicas: 2
+  selector: 
+    matchLabels:
+      name: react-ssr-prod 
+  template:
+    metadata:
+      labels:
+        name: react-ssr-prod
+    spec: 
+      containers:
+      - name: react-ssr-prod
+        image: praekiko/react-ssr:0.0.2
+        ports:
+        - containerPort: 8080
