@@ -1,0 +1,16 @@
+---
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata: 
+  name: nginx-lets-encrypt-staging
+spec:
+  secretName: nginx-lets-encrypt-staging-tls
+  issuerRef: 
+    name: letsencrypt-staging
+  commonName: praekiko.tk
+  acme:
+    config:
+      - http01:
+          ingress: default-ingress
+        domains:
+          - praekiko.tk
