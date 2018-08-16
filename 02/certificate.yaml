@@ -1,0 +1,13 @@
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: www-praekiko-tk
+spec:
+  secretName: www-praekiko-tk-tls
+  issuerRef:
+    name: ca-issuer
+    kind: Issuer
+  commonName: www.praekiko.tk
+  dnsNames:
+    - praekiko.tk
+    - www.praekiko.tk
