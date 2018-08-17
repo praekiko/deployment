@@ -1,0 +1,39 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: dev-ingress
+  namespace: dev
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: "/"
+    # nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
+spec:
+  # tls:
+  # - secretName: scg-tls
+  # hosts:
+  # - dev.praelariis.tk
+  rules:
+    - host: dev.praelariis.tk
+      http:
+        paths:
+          - path: /*
+            backend:
+              serviceName: react-ssr
+              servicePort: 8080
+          # - path: /admin/*
+          #   backend:
+          #     serviceName: admin-react
+          #     servicePort: 8080
+          - path: /api/content/*
+            backend:
+              serviceName: content-api
+              servicePort: 8080
+          # - path: /api/order/*
+          #   backend:
+          #     serviceName: order-api
+          #     servicePort: 8080
+          # - path: /api/stock/*
+          #   backend:
+          #     serviceName: stock-api
+          #     servicePort: 8080
