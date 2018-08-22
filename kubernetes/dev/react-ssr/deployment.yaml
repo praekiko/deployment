@@ -7,16 +7,16 @@ metadata:
     name: dev
 spec:
   replicas: 1
-  selector: 
+  selector:
     matchLabels:
-      name: react-ssr 
+      name: react-ssr
   template:
     metadata:
       labels:
         name: react-ssr
-    spec: 
+    spec:
       containers:
-      - name: react-ssr
-        image: praekiko/react-ssr:0.0.2
-        ports:
-        - containerPort: 8080
+        - name: react-ssr
+          image: praekiko/react-ssr:0.0.2
+          ports:
+            - containerPort: 8080

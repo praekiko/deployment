@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dev
+  labels:
+    name: dev
+
+# kubectl config set-context development --namespace=dev --cluster=DEFAULT_CONTEXT_NAME --user=DEFAULT_CONTEXT_NAME
+

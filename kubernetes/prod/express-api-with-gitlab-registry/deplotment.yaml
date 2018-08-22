@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: express-api
+  namespace: prod
+  labels:
+    name: prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: express-api
+  template:
+    metadata:
+      labels:
+        name: express-api
+    spec:
+      containers:
+        - name: express-api
+          image: registry.gitlab.com/scg-it-dist/express-api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: NODE_ENV
+              value: production
+      imagePullSecrets:
+        - name: registry.gitlab.com

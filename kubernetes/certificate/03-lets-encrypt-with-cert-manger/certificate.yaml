@@ -1,0 +1,19 @@
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: www-praekiko-tk-lets-encrypt-prod
+spec:
+  secretName: www-praekiko-tk-lets-encrypt-prod-tls
+  issuerRef:
+    name: letsencrypt-prod
+  commonName: www.praekiko.tk
+  dnsNames:
+    - praekiko.tk
+    - www.praekiko.tk
+  acme:
+    config:
+      - http01:
+          ingress: default-ingress
+        domains:
+          - praekiko.tk
+          - www.praekiko.tk

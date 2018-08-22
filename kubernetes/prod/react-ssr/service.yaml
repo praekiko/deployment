@@ -4,12 +4,11 @@ metadata:
   labels:
     name: react-ssr
   name: react-ssr
-  namespace: dev
+  namespace: prod
 spec:
   selector:
     name: react-ssr
   ports:
-  - port: 8080
-    protocol: TCP
-    targetPort: 8080
-  
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080

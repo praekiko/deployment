@@ -1,0 +1,96 @@
+image: node:8.11.3-alpine
+
+variables:
+  TZ: Asia/Bangkok
+  KUBE_CLUSTER_NAME: praekiko-cluster
+  KUBE_CLUSTER_ZONE: asia-southeast1-a
+  KUBE_CLUSTER_PROJECT: praekiko-110
+  KUBE_DEPLOYMENT_NAME: react-ssr
+  CONTAINER_IMAGE: registry.gitlab.com/$CI_PROJECT_PATH
+
+stages:
+  - test
+  - build
+  - docker
+  - deploy
+
+.workflow-branches: &workflow_branches
+  - master
+  - dev
+
+test:
+  stage: test
+  only: *workflow_branches
+  cache:
+    paths:
+      - node_modules
+  script:
+    - npm prune
+    - npm install
+    - npm run lint
+    - npm run test
+
+build:
+  stage: build
+  only: *workflow_branches
+  cache:
+    paths:
+      - node_modules
+  script:
+    - npm prune
+    - npm install
+    - npm run build
+  artifacts:
+    expire_in: 30 min
+    paths:
+      - dist
+
+docker:
+  stage: docker
+  only: *workflow_branches
+  image: docker:stable
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_DRIVER: overlay2
+  before_script:
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+  script:
+    - docker pull $CONTAINER_IMAGE:latest || true
+    - docker build --cache-from $CONTAINER_IMAGE:latest --tag $CONTAINER_IMAGE:$CI_COMMIT_SHA --tag $CONTAINER_IMAGE:latest .
+    - docker push $CONTAINER_IMAGE:$CI_COMMIT_SHA
+    - docker push $CONTAINER_IMAGE:latest
+
+deploy_dev:
+  stage: deploy
+  image: google/cloud-sdk:212.0.0-alpine
+  environment:
+    name: development
+    url: http://dev.praekiko.tk/
+  before_script:
+    - echo "$GOOGLE_KEY" > key.json
+    - gcloud components install kubectl
+  script:
+    - gcloud auth activate-service-account --key-file key.json
+    - gcloud container clusters get-credentials $KUBE_CLUSTER_NAME --zone $KUBE_CLUSTER_ZONE --project $KUBE_CLUSTER_PROJECT
+    - kubectl set image deployment/$KUBE_DEPLOYMENT_NAME $KUBE_DEPLOYMENT_NAME=$CONTAINER_IMAGE:$CI_COMMIT_SHA -n dev
+  only:
+    - dev
+
+deploy_prod:
+  stage: deploy
+  image: google/cloud-sdk:212.0.0-alpine
+  environment:
+    name: production
+    url: http://www.praekiko.tk/
+  before_script:
+    - echo "$GOOGLE_KEY" > key.json
+    - gcloud components install kubectl
+  script:
+    - gcloud auth activate-service-account --key-file key.json
+    - gcloud container clusters get-credentials $KUBE_CLUSTER_NAME --zone $KUBE_CLUSTER_ZONE --project $KUBE_CLUSTER_PROJECT
+    - kubectl set image deployment/$KUBE_DEPLOYMENT_NAME $KUBE_DEPLOYMENT_NAME=$CONTAINER_IMAGE:$CI_COMMIT_SHA -n prod
+  when: manual
+  only:
+    - master
