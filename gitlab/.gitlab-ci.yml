@@ -75,6 +75,7 @@ deploy_dev:
     - gcloud auth activate-service-account --key-file key.json
     - gcloud container clusters get-credentials $KUBE_CLUSTER_NAME --zone $KUBE_CLUSTER_ZONE --project $KUBE_CLUSTER_PROJECT
     - kubectl set image deployment/$KUBE_DEPLOYMENT_NAME $KUBE_DEPLOYMENT_NAME=$CONTAINER_IMAGE:$CI_COMMIT_SHA -n dev
+    - kubectl rollout status deployments $KUBE_DEPLOYMENT_NAME -n dev
   only:
     - dev
 
@@ -91,6 +92,7 @@ deploy_prod:
     - gcloud auth activate-service-account --key-file key.json
     - gcloud container clusters get-credentials $KUBE_CLUSTER_NAME --zone $KUBE_CLUSTER_ZONE --project $KUBE_CLUSTER_PROJECT
     - kubectl set image deployment/$KUBE_DEPLOYMENT_NAME $KUBE_DEPLOYMENT_NAME=$CONTAINER_IMAGE:$CI_COMMIT_SHA -n prod
+    - kubectl rollout status deployments $KUBE_DEPLOYMENT_NAME -n prod
   when: manual
   only:
     - master
